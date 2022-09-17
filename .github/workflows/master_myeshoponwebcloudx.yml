@@ -23,7 +23,7 @@ jobs:
           include-prerelease: true
 
       - name: Build with dotnet
-        run: dotnet build ./eShopOnWeb.sln --configuration Release
+        run: dotnet build ./eShopOnWeb.sln --configuration Release --os linux
 
       - name: dotnet publish
         run: dotnet publish ./eShopOnWeb.sln -c Release -o ${{env.DOTNET_ROOT}}/myapp

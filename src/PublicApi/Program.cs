@@ -28,14 +28,14 @@ using MinimalApi.Endpoint.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddEndpoints();
+
 
 Microsoft.eShopWeb.Infrastructure.Dependencies.ConfigureServices(builder.Configuration, builder.Services);
 
 var options = new ApplicationInsightsServiceOptions();
 options.InstrumentationKey = builder.Configuration["ApplicationInsights:InstrumentationKey"];
 builder.Services.AddApplicationInsightsTelemetry(options);
-
+builder.Services.AddEndpoints();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
         .AddEntityFrameworkStores<AppIdentityDbContext>()
         .AddDefaultTokenProviders();

@@ -4,6 +4,7 @@ using System.Text;
 using BlazorShared;
 using BlazorShared.Models;
 using MediatR;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -35,7 +36,9 @@ builder.Logging.AddConsole();
 
 Microsoft.eShopWeb.Infrastructure.Dependencies.ConfigureServices(builder.Configuration, builder.Services);
 
-builder.Services.AddApplicationInsightsTelemetry();
+var options = new ApplicationInsightsServiceOptions();
+options.InstrumentationKey = builder.Configuration["ApplicationInsights:InstrumentationKey"];
+builder.Services.AddApplicationInsightsTelemetry(options);
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
         .AddEntityFrameworkStores<AppIdentityDbContext>()

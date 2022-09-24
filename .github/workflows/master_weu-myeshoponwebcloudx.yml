@@ -6,7 +6,7 @@ name: west-europe
 on:
   push:
     branches:
-      - master
+      - masterq
   workflow_dispatch:
 
 jobs:

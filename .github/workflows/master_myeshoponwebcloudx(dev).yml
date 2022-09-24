@@ -6,7 +6,7 @@ name: dev-central-us
 on:
   push:
     branches:
-      - master
+      - masterq
   workflow_dispatch:
 
 jobs:

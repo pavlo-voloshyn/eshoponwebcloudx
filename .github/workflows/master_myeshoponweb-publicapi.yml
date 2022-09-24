@@ -6,7 +6,7 @@ name: public-api
 on:
   push:
     branches:
-      - master
+      - masterq
   workflow_dispatch:
 
 jobs:

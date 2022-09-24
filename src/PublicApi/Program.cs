@@ -21,6 +21,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MinimalApi.Endpoint.Configurations.Extensions;
@@ -32,9 +33,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 Microsoft.eShopWeb.Infrastructure.Dependencies.ConfigureServices(builder.Configuration, builder.Services);
 
-var options = new ApplicationInsightsServiceOptions();
-options.InstrumentationKey = builder.Configuration["ApplicationInsights:InstrumentationKey"];
-builder.Services.AddApplicationInsightsTelemetry(options);
+builder.Logging.AddApplicationInsights("f834522a-e6c3-4c1d-8a84-242e37da484d");
+
 builder.Services.AddEndpoints();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
         .AddEntityFrameworkStores<AppIdentityDbContext>()

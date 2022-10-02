@@ -59,7 +59,7 @@ public class OrderService : IOrderService
 
     private async Task SendToBlobStorageAsync(Order order)
     {
-        var json = JsonConvert.SerializeObject(order);
+        var json = JsonConvert.SerializeObject(order, Formatting.Indented);
         var data = new StringContent(json, Encoding.UTF8, "application/json");
 
         var url = Environment.GetEnvironmentVariable("OrderItemsReserverUrl");

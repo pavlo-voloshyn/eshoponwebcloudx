@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Ardalis.GuardClauses;
 using Microsoft.eShopWeb.ApplicationCore.Entities;
@@ -6,6 +9,7 @@ using Microsoft.eShopWeb.ApplicationCore.Entities.BasketAggregate;
 using Microsoft.eShopWeb.ApplicationCore.Entities.OrderAggregate;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using Microsoft.eShopWeb.ApplicationCore.Specifications;
+using Newtonsoft.Json;
 
 namespace Microsoft.eShopWeb.ApplicationCore.Services;
 
@@ -48,6 +52,19 @@ public class OrderService : IOrderService
 
         var order = new Order(basket.BuyerId, shippingAddress, items);
 
+        await SendToBlobStorageAsync(order);
+        
         await _orderRepository.AddAsync(order);
+    }
+
+    private async Task SendToBlobStorageAsync(Order order)
+    {
+        var json = JsonConvert.SerializeObject(order);
+        var data = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var url = Environment.GetEnvironmentVariable("OrderItemsReserverUrl");
+        using var client = new HttpClient();
+
+        var response = await client.PostAsync(url, data);
     }
 }

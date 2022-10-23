@@ -52,7 +52,7 @@ public class OrderService : IOrderService
 
         var order = new Order(basket.BuyerId, shippingAddress, items);
 
-        //await SendToBlobStorageAsync(order);
+        await SendToBlobStorageAsync(order);
         
         await _orderRepository.AddAsync(order);
     }

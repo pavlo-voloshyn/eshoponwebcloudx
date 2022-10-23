@@ -94,11 +94,6 @@ builder.Services.AddScoped<HttpService>();
 builder.Services.AddBlazorServices();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-builder.Configuration.AddAzureKeyVault(
-        new Uri($"https://{builder.Configuration["VaultName"]}.vault.azure.net/"), 
-        new DefaultAzureCredential()
-    );
-
 var app = builder.Build();
 
 app.Logger.LogInformation("App created...");

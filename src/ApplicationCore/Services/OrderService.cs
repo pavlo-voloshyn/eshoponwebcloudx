@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Ardalis.GuardClauses;
+using Azure.Messaging.ServiceBus;
 using Microsoft.eShopWeb.ApplicationCore.Entities;
 using Microsoft.eShopWeb.ApplicationCore.Entities.BasketAggregate;
 using Microsoft.eShopWeb.ApplicationCore.Entities.OrderAggregate;
@@ -59,12 +60,11 @@ public class OrderService : IOrderService
 
     private async Task SendToBlobStorageAsync(Order order)
     {
-        var json = JsonConvert.SerializeObject(order, Formatting.Indented);
-        var data = new StringContent(json, Encoding.UTF8, "application/json");
+        var data = JsonConvert.SerializeObject(order, Formatting.Indented);
 
-        var url = Environment.GetEnvironmentVariable("OrderItemsReserverUrl");
-        using var client = new HttpClient();
-
-        var response = await client.PostAsync(url, data);
+        var constring = Environment.GetEnvironmentVariable("ServiceBus");
+        var qname = Environment.GetEnvironmentVariable("Qname");
+        await using var client = new ServiceBusClient(constring);
+        await client.CreateSender(qname).SendMessageAsync(new ServiceBusMessage(data));
     }
 }

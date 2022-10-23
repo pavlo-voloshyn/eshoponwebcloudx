@@ -75,7 +75,10 @@ public class OrderService : IOrderService
         await client.CreateSender(qname).SendMessageAsync(new ServiceBusMessage(data));
 
         ServiceBusProcessor _ordersProcessor = client.CreateProcessor(qname);
-        //_ordersProcessor.ProcessMessageAsync += PizzaInvoiceMessageHandler;
+        _ordersProcessor.ProcessMessageAsync += async(ProcessMessageEventArgs arg) =>
+        {
+            return Task.CompletedTask;
+        };
         _ordersProcessor.ProcessErrorAsync += async (ProcessErrorEventArgs arg) =>
         {
             var client = new HttpClient();

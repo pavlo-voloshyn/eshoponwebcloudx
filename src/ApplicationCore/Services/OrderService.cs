@@ -64,7 +64,23 @@ public class OrderService : IOrderService
 
         var constring = Environment.GetEnvironmentVariable("ServiceBus");
         var qname = Environment.GetEnvironmentVariable("Qname");
-        await using var client = new ServiceBusClient(constring);
+        var email = Environment.GetEnvironmentVariable("ErrorEmail");
+        await using var client = new ServiceBusClient(constring, new ServiceBusClientOptions() 
+        { 
+            RetryOptions = new ServiceBusRetryOptions() 
+            { 
+                MaxRetries = 3
+            } 
+        });
         await client.CreateSender(qname).SendMessageAsync(new ServiceBusMessage(data));
+
+        ServiceBusProcessor _ordersProcessor = client.CreateProcessor(qname);
+        //_ordersProcessor.ProcessMessageAsync += PizzaInvoiceMessageHandler;
+        _ordersProcessor.ProcessErrorAsync += async (ProcessErrorEventArgs arg) =>
+        {
+            var client = new HttpClient();
+            await client.PostAsync(email, new StringContent(data));
+        };
+        await _ordersProcessor.StartProcessingAsync();
     }
 }

@@ -52,8 +52,6 @@ public class OrderService : IOrderService
         }).ToList();
 
         var order = new Order(basket.BuyerId, shippingAddress, items);
-
-        await SendToBlobStorageAsync(order);
         
         await _orderRepository.AddAsync(order);
     }
@@ -75,7 +73,7 @@ public class OrderService : IOrderService
         await client.CreateSender(qname).SendMessageAsync(new ServiceBusMessage(data));
 
         ServiceBusProcessor _ordersProcessor = client.CreateProcessor(qname);
-        _ordersProcessor.ProcessMessageAsync += async(ProcessMessageEventArgs arg) =>
+        _ordersProcessor.ProcessMessageAsync += (ProcessMessageEventArgs arg) =>
         {
             return Task.CompletedTask;
         };

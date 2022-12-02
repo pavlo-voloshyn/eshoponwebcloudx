@@ -52,7 +52,9 @@ public class OrderService : IOrderService
         }).ToList();
 
         var order = new Order(basket.BuyerId, shippingAddress, items);
-        
+
+
+        await SendToComsoStorageAsync(order);
         await _orderRepository.AddAsync(order);
     }
 
@@ -83,5 +85,17 @@ public class OrderService : IOrderService
             await client.PostAsync(email, new StringContent(data));
         };
         await _ordersProcessor.StartProcessingAsync();
+    }
+
+
+    private async Task SendToComsoStorageAsync(Order order)
+    {
+        var json = JsonConvert.SerializeObject(order);
+        var data = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var url = Environment.GetEnvironmentVariable("OrderItemsReserverUrl");
+        using var client = new HttpClient();
+
+        var response = await client.PostAsync(url, data);
     }
 }

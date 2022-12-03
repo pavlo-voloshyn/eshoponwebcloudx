@@ -55,36 +55,18 @@ public class OrderService : IOrderService
 
 
         await SendToComsoStorageAsync(order);
+        await SendToServiceBusQueueAsync(order);
         await _orderRepository.AddAsync(order);
     }
 
-    private async Task SendToBlobStorageAsync(Order order)
+    private async Task SendToServiceBusQueueAsync(Order order)
     {
         var data = JsonConvert.SerializeObject(order, Formatting.Indented);
 
-        var constring = Environment.GetEnvironmentVariable("ServiceBus");
+        var connectionString = Environment.GetEnvironmentVariable("ServiceBusConnectionString");
         var qname = Environment.GetEnvironmentVariable("Qname");
-        var email = Environment.GetEnvironmentVariable("ErrorEmail");
-        await using var client = new ServiceBusClient(constring, new ServiceBusClientOptions() 
-        { 
-            RetryOptions = new ServiceBusRetryOptions() 
-            { 
-                MaxRetries = 3
-            } 
-        });
+        await using var client = new ServiceBusClient(connectionString);
         await client.CreateSender(qname).SendMessageAsync(new ServiceBusMessage(data));
-
-        ServiceBusProcessor _ordersProcessor = client.CreateProcessor(qname);
-        _ordersProcessor.ProcessMessageAsync += (ProcessMessageEventArgs arg) =>
-        {
-            return Task.CompletedTask;
-        };
-        _ordersProcessor.ProcessErrorAsync += async (ProcessErrorEventArgs arg) =>
-        {
-            var client = new HttpClient();
-            await client.PostAsync(email, new StringContent(data));
-        };
-        await _ordersProcessor.StartProcessingAsync();
     }
 
 
